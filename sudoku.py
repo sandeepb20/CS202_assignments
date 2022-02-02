@@ -6,9 +6,18 @@ import sys
 import math
 from pysat.formula import CNF
 from pysat.solvers import Solver, Minisat22
+#+++++++++++++++++++
+import time
+import numpy as np
+import pandas as pd
 
+start_time = time.time()
+input_csv_file = "3-unsolved.csv"
+
+generate_random_sudoku = False
+#------------------
 # reading input from the CSV File
-file = open("input.csv")
+file = open(input_csv_file)
 reader = csv.reader(file)
 N= len(list(reader))
 
@@ -21,7 +30,7 @@ if __name__ == '__main__':
     # assigning a dictionary for easy reading in CSV
     digits = {str(x):x for x in range(1,N+1)}
     rows = []
-    with open("input.csv",'r') as csvfile:
+    with open(input_csv_file,'r') as csvfile:
         # taking input from the CSV
         csvreader=csv.reader(csvfile)
         for row in csvreader:
@@ -124,17 +133,52 @@ if __name__ == '__main__':
 
     # initiating the Minisat22 solver
     m = Minisat22()
-    if (m.append_formula(cnf.clauses,no_return=False)):
-        print("True")
-        diffSudoku=[]
+    m.append_formula(cnf.clauses,no_return=False)
+    print(m.solve())
+    if generate_random_sudoku == True:
+        solutions_list=[]
         for x in m.enum_models():
-            diffSudoku+=[x]
-            if(len(diffSudoku)>5000):
+            solutions_list+=[x]
+            if(len(solutions_list)>500):
                 break
-            sudoku_=random.choice(diffSudoku)
-        # placing the obtained model in a list
-        sys.stdout = open("new_list.py", "w")
-        print("my_list = ", sudoku_)
-        sys.stdout.close()
+        sudoku_list=random.choice(solutions_list)
     else:
-        print("False")
+        sudoku_list = m.get_model()
+    #print(len(solutions_list))
+    
+    #sudoku_list = m.get_model()
+    lis = []
+    for x in sudoku_list:
+        if x>0:
+            if(x%N==0):
+                lis.append(N)
+            else:
+                lis.append(x%N)
+#To print in command line
+    list1 = []
+    list2 = []
+    for i in range(N*N):
+        list1.append(lis[i])
+
+    for i in range(N*N):
+        list2.append(lis[i+N*N])
+    print("Sudoku 1")
+    print(np.array(list1).reshape(N,N))
+    print(" *******************")
+    print("Sudoku 2")
+    print(np.array(list2).reshape(N,N))
+#To save in CSV
+    list1 = []
+    list2 = []
+    for i in range(2*N):
+        list2 = []
+        for j in range(N):
+            list2.append(lis[i*N+j])
+        list1.append(list2)
+    df = pd.DataFrame(np.array(list1)) 
+    output_file_name = "output_of_"+input_csv_file
+    df.to_csv(output_file_name,index=False,header=False)
+
+
+print("--- %s seconds ---" % (time.time() - start_time))
+
