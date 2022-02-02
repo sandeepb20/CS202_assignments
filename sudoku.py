@@ -12,12 +12,12 @@ import numpy as np
 import pandas as pd
 
 start_time = time.time()
-input_csv_file = "3-unsolved.csv"
+input_csv_file = "6-unsolved.csv"
 
 generate_random_sudoku = False
 #------------------
-# reading input from the CSV File
-file = open(input_csv_file)
+# reading input from he CSV File
+file = open("input/"+input_csv_file)
 reader = csv.reader(file)
 N= len(list(reader))
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # assigning a dictionary for easy reading in CSV
     digits = {str(x):x for x in range(1,N+1)}
     rows = []
-    with open(input_csv_file,'r') as csvfile:
+    with open("input/"+input_csv_file,'r') as csvfile:
         # taking input from the CSV
         csvreader=csv.reader(csvfile)
         for row in csvreader:
@@ -176,7 +176,7 @@ if __name__ == '__main__':
             list2.append(lis[i*N+j])
         list1.append(list2)
     df = pd.DataFrame(np.array(list1)) 
-    output_file_name = "output_of_"+input_csv_file
+    output_file_name = "output/output_of_"+input_csv_file
     df.to_csv(output_file_name,index=False,header=False)
 
 
