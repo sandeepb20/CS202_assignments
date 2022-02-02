@@ -7,10 +7,10 @@ import math
 from pysat.formula import CNF
 from pysat.solvers import Solver, Minisat22
 import numpy as np
+import pandas as pd
 import time
-
 start_time = time.time()
-input_csv_file = "input/5-solved.csv"
+input_csv_file = "output/output_of_new-unsolved.csv"
 
 file = open(input_csv_file)
 reader = csv.reader(file)
@@ -115,7 +115,6 @@ if __name__ == '__main__':
     min_index = 0
     max_index = len(test_list)-1
     while(max_index - min_index > 1):
-        print(k*165,"--- %s seconds ---" % (time.time() - start_time))
         cnf2 = cnf.copy()
         check = True
         mid_index = int((max_index+min_index)/2)
@@ -123,6 +122,9 @@ if __name__ == '__main__':
             random_r = test_list[k][0]
             random_c = test_list[k][1]
             if random_r <= N:
+                #print(random_r)
+                #print(random_c)
+                #print(int(rows[random_r-1][random_c-1]))
                 temp = var(random_r,random_c,int(rows[random_r-1][random_c-1]))
             else:
                 temp = var2(random_r-N,random_c,int(rows[random_r-1][random_c-1]))   
@@ -130,7 +132,6 @@ if __name__ == '__main__':
         s = Minisat22()
         s.append_formula(cnf2.clauses,no_return=False)
         count = 0
-        print("--- %s seconds ---" % (time.time() - start_time))
         for x in s.enum_models():
             count += 1
             if(count>1):
@@ -147,11 +148,16 @@ if __name__ == '__main__':
         rows[random_r-1][random_c-1] = 0
        
                 
-
+# printing in the terminal
     for i in range(N):
         print(rows[i])
     print("****")
     for i in range(N):
         print(rows[i+N])
-    print(min_index)
+    print("No of Holes = ",min_index)
+
+# save in csv file name="output.csv"
+    df = pd.DataFrame(np.array(rows))
+    output_file_name = "output.csv"
+    df.to_csv(output_file_name,index=False,header=False)
 print("--- %s seconds ---" % (time.time() - start_time))

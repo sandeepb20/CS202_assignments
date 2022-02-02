@@ -6,25 +6,29 @@ import sys
 import math
 from pysat.formula import CNF
 from pysat.solvers import Solver, Minisat22
-#+++++++++++++++++++
 import time
 import numpy as np
 import pandas as pd
 
 start_time = time.time()
-input_csv_file = "6-unsolved.csv"
+# assign input file
+input_csv_file = "new-unsolved.csv"
 
-generate_random_sudoku = False
-#------------------
+# to get different solution each time
+# set it to True, if not then to False
+generate_random_sudoku = True
+
 # reading input from he CSV File
 file = open("input/"+input_csv_file)
 reader = csv.reader(file)
 N= len(list(reader))
 
 N = int(N/2)
+
 # D is the size of sudoku
 # for D = 3, Sudoku is of 9x9 size
 D = int(math.sqrt(N))
+
 
 if __name__ == '__main__':
     # assigning a dictionary for easy reading in CSV
@@ -135,50 +139,51 @@ if __name__ == '__main__':
     m = Minisat22()
     m.append_formula(cnf.clauses,no_return=False)
     print(m.solve())
-    if generate_random_sudoku == True:
-        solutions_list=[]
-        for x in m.enum_models():
-            solutions_list+=[x]
-            if(len(solutions_list)>500):
-                break
-        sudoku_list=random.choice(solutions_list)
-    else:
-        sudoku_list = m.get_model()
-    #print(len(solutions_list))
+    if(m.solve()):
+        # if need different solutions
+        if generate_random_sudoku == True:
+            big_list=[]
+            for x in m.enum_models():
+                big_list+=[x]
+                if(len(big_list)>500):
+                    break
+            sudoku_list=random.choice(big_list)
+        else:
+            # if need same solution
+            sudoku_list = m.get_model()
     
-    #sudoku_list = m.get_model()
-    lis = []
-    for x in sudoku_list:
-        if x>0:
-            if(x%N==0):
-                lis.append(N)
-            else:
-                lis.append(x%N)
-#To print in command line
-    list1 = []
-    list2 = []
-    for i in range(N*N):
-        list1.append(lis[i])
-
-    for i in range(N*N):
-        list2.append(lis[i+N*N])
-    print("Sudoku 1")
-    print(np.array(list1).reshape(N,N))
-    print(" *******************")
-    print("Sudoku 2")
-    print(np.array(list2).reshape(N,N))
-#To save in CSV
-    list1 = []
-    list2 = []
-    for i in range(2*N):
+    # decoding the list
+        lis = []
+        for x in sudoku_list:
+            if x>0:
+                if(x%N==0):
+                    lis.append(N)
+                else:
+                    lis.append(x%N)
+    #To print in command line
+        list1 = []
         list2 = []
-        for j in range(N):
-            list2.append(lis[i*N+j])
-        list1.append(list2)
-    df = pd.DataFrame(np.array(list1)) 
-    output_file_name = "output/output_of_"+input_csv_file
-    df.to_csv(output_file_name,index=False,header=False)
+        for i in range(N*N):
+            list1.append(lis[i])
 
+        for i in range(N*N):
+            list2.append(lis[i+N*N])
+        print("Sudoku 1")
+        print(np.array(list1).reshape(N,N))
+        print(" *******************")
+        print("Sudoku 2")
+        print(np.array(list2).reshape(N,N))
+    #To save in CSV
+        list1 = []
+        list2 = []
+        for i in range(2*N):
+            list2 = []
+            for j in range(N):
+                list2.append(lis[i*N+j])
+            list1.append(list2)
+        df = pd.DataFrame(np.array(list1)) 
+        output_file_name = "output/output_of_"+input_csv_file
+        df.to_csv(output_file_name,index=False,header=False)
 
-print("--- %s seconds ---" % (time.time() - start_time))
-
+    # execution time
+    print("--- %s seconds ---" % (time.time() - start_time))
