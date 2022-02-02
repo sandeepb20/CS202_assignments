@@ -1,4 +1,7 @@
 ------------------- Sudoku Pair Solver and Generator -------------------
+by:
+Sandeep Kumar Bijarnia 200856
+Kuldeep Singh Chouhan 200530
 
 Question 1:
 Problem Statement:
@@ -222,3 +225,14 @@ No of Holes =  203
 
    this will be saved as a csv file in "output.csv"
 And a sudoku pair is generated.
+
+Assumptions:
+We would expect user to provide a valid input for both
+questions. Like, K would be a natural number, and dimensions
+of the sudoku matrix should be correct. Else, there would be
+an error prompt.
+
+Limitations:
+in question 2, our system was not able to produce a solution
+for k=6, as it was lagging a lot. So, we expect a similar
+behaviour for k=>6.
