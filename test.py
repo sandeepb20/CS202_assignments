@@ -10,7 +10,7 @@ import numpy as np
 import time
 
 start_time = time.time()
-input_csv_file = "input/5-solved.csv"
+input_csv_file = "input/4-solved.csv"
 
 file = open(input_csv_file)
 reader = csv.reader(file)
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     for i in range(1,2*N+1):
         for j in range(1,N+1):
             test_list.append([i,j])
-    random.shuffle(test_list)
+    #random.shuffle(test_list)
 
     for r in range(1,N+1):
         for c in range(1,N+1):
@@ -112,14 +112,17 @@ if __name__ == '__main__':
                 q4 = []
                 q4.append(var2(r,c,int(rows[r-1+N][c-1])))
                 cnf.extend(CardEnc.equals(q4, encoding=0))
+    print("Intermediate time--- %s seconds ---" % (time.time() - start_time))
     min_index = 0
     max_index = len(test_list)-1
-    while(max_index - min_index > 1):
-        print(k*165,"--- %s seconds ---" % (time.time() - start_time))
-        cnf2 = cnf.copy()
+    buffer = int(max_index/20)
+    itr = 0
+    while itr < max_index and flag == True:
+        """ cnf2 = cnf.copy()
         check = True
         mid_index = int((max_index+min_index)/2)
-        for k in range(mid_index):
+        print(mid_index)
+        for k in range(min_index):
             random_r = test_list[k][0]
             random_c = test_list[k][1]
             if random_r <= N:
@@ -127,25 +130,26 @@ if __name__ == '__main__':
             else:
                 temp = var2(random_r-N,random_c,int(rows[random_r-1][random_c-1]))   
             cnf2.clauses.remove([temp])  
+         """
+        random_r = test_list[itr][0]
+        random_c = test_list[itr][1]
+        itr +=1
+        if random_r <= N:
+            temp = var(random_r,random_c,int(rows[random_r-1][random_c-1]))
+        else:
+            temp = var2(random_r-N,random_c,int(rows[random_r-1][random_c-1])) 
+        cnf.clauses.remove([temp])
         s = Minisat22()
-        s.append_formula(cnf2.clauses,no_return=False)
+        s.append_formula(cnf.clauses,no_return=False)
         count = 0
-        print("--- %s seconds ---" % (time.time() - start_time))
         for x in s.enum_models():
             count += 1
             if(count>1):
-                check = False
+                flag = False
                 break
-        if check == True:
-            min_index = mid_index
-        else:
-            max_index = mid_index
-
-    for i in range(mid_index):
-        random_r = test_list[i][0]
-        random_c = test_list[i][1]
-        rows[random_r-1][random_c-1] = 0
-       
+        s.delete()
+        if flag == True:
+            rows[random_r-1][random_c-1] = 0
                 
 
     for i in range(N):
@@ -153,5 +157,5 @@ if __name__ == '__main__':
     print("****")
     for i in range(N):
         print(rows[i+N])
-    print(min_index)
+    print(itr)
 print("--- %s seconds ---" % (time.time() - start_time))
