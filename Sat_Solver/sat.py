@@ -1,11 +1,9 @@
 # importing required libraries
-#from numpy import true_divide
-from pysat.formula import CNF
 import sys
 from copy import deepcopy
 import time
 
-inputfile = '150_sat'  #
+inputfile = 'test'  # <------------enter the name of the file from input folder
 
 # start timer
 start_time = time.time()
@@ -14,6 +12,17 @@ start_time = time.time()
 assign_tru = set()
 assign_fals = set()
 
+def most_frequent(List):
+    counter = 0
+    num = List[0]
+     
+    for i in List:
+        curr_frequency = List.count(i)
+        if(curr_frequency> counter):
+            counter = curr_frequency
+            num = i
+ 
+    return num
 
 # function to check whether a cnf "l1" consisting of literals "lit" is solvable or not
 def solvability(l1, lit):
@@ -84,25 +93,35 @@ def solvability(l1, lit):
             assign_tru.remove(i)
         for i in fals:
             assign_fals.remove(-i)
+        #print("chalo bhai")    
         return False
     
     # revised list of literals for new cnf
     lit = list(set([abs(i) for sublist in l1 for i in sublist]))
     
-    # 
-    first = lit[0]
-    
+    # choosing the most common literal from the list
+    flat_list=[item for sublist in l1 for item in sublist]
+    first = most_frequent(flat_list)
+    #first = l1[0][0]
+    # creating two cnf
+    # in first one, the chosen literal is set to true
+    # in second, the chosen literal is set to true
     l1_new_1= deepcopy(l1)
     l1_new_2= deepcopy(l1)
     l1_new_1.append([first])
     l1_new_2.append([-first])
 
     
+    # check solvability of first cnf
     if solvability(l1_new_1, deepcopy(lit)):
         return True
+    # if found UNSAT, check solvability of second cnf
     elif solvability(l1_new_2, deepcopy(lit)):
         return True
+    # if still found UNSAT, it is not solvable
     else:
+
+        # remove elements from assign_tru and assign_fals
         for i in tru:
             assign_tru.remove(i)
         for i in fals:
@@ -114,27 +133,51 @@ def solvability(l1, lit):
 
 
 if __name__=='__main__':
-    
-    cnf = CNF(from_file='input/'+inputfile+'.cnf')
-    l1 = cnf.clauses
-    #num_clauses = len(l1)
-    
-    lit = list(set([abs(i) for sublist in l1 for i in sublist]))
-    #num_lit = len(lit)
-    
-    
 
+    # reading input from cnf file
+    f = open("input/"+inputfile+".cnf")
+    l1=[]
+    for line in f:
+        # ignoring lines starting from p and c
+        if(line[0]=='c' or line[0]=='p'):
+            continue
+        else:
+            # storing clauses
+            res = line.split()
+            clause=[]
+            for i in res:
+                if(int(i)!=0):
+                    clause.append(int(i))
+            l1.append(clause)
+
+    # literals
+    lit = list(set([abs(i) for sublist in l1 for i in sublist]))
+    num_lit = len(lit)
+    
+    
+    # check solvability
     if (solvability(l1, lit)):
         print("SAT")
-        
+        # create list of true and false literals
         l_true = list(assign_tru)
         l_false = list(assign_fals)
-        
-        
+        # join both lists
         l_true.extend(l_false)
-        print("Model: ", sorted(l_true, key=abs))
-        print("Time taken : ", time.time()-start_time, "seconds")
+        
+        # complete the partially filled model
+        # we will put those remaining literals to true
+        for i in range(1, num_lit +1):
+            if i not in l_true and -i not in l_true:
+                l_true.append(i)
 
+        # sorting the final model
+        final = sorted(l_true, key=abs)
+
+        # printing and storing output
+        # on terminal
+        print("Model: ", final)
+        print("Time taken : ", time.time()-start_time, "seconds")
+        # in file
         sys.stdout = open("output/output_of_" + inputfile + ".txt", "+w")
         print("SAT")
         print("Model: ", sorted(l_true, key=abs))
@@ -143,8 +186,11 @@ if __name__=='__main__':
         
         
     else:
+        # printing and storing output
+        # on terminal
         print("UNSAT")
         print("Time taken : ", time.time()-start_time, "seconds")
+        # in file
         sys.stdout = open("output/output_of_" + inputfile + ".txt", "+w")
         print("UNSAT")
         print("Time taken : ", time.time()-start_time, "seconds")
