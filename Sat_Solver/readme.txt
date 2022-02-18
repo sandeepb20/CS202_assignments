@@ -70,3 +70,14 @@ we will check "50_unsat_2.cnf"
     It will also appear on the terminal.
     >>UNSAT
     >>Time taken :  0.6938498020172119 seconds
+
+Assumptions:
+There are no as such assumptions for running of this code.
+Only requirement is CNF should be in right format.
+
+Limitations:
+If there are no frequent literals, in the CNF, then the code will take
+a longer time, because of the way it is written, it searches for a unit
+clause to be assigned true/ false. But if the literals appear almost in
+equal frequency, it would do a search, which would be expensive and hence
+will take a longer time. As observed in the case of "150_unsat_1.cnf".
