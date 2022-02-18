@@ -5,6 +5,8 @@ import sys
 from copy import deepcopy
 import time
 
+inputfile = '150_sat'  #
+
 # start timer
 start_time = time.time()
 
@@ -112,7 +114,7 @@ def solvability(l1, lit):
 
 
 if __name__=='__main__':
-    inputfile = 'test'  #
+    
     cnf = CNF(from_file='input/'+inputfile+'.cnf')
     l1 = cnf.clauses
     #num_clauses = len(l1)
